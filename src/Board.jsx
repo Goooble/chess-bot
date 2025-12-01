@@ -17,7 +17,7 @@ export default function Board({ engine }) {
   return (
     <>
       <div>{result}</div>
-      <div className="w-2/5">
+      <div className="w-4/5 lg:w-2/5">
         <ChessGame.Board
           options={{
             showNotation: true,
