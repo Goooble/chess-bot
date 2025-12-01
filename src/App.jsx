@@ -7,6 +7,8 @@ function App() {
     <div className="flex items-center flex-col gap-5">
       <ChessGame.Root>
         <Game></Game>
+        {<ChessGame.Sounds />}
+        {<ChessGame.KeyboardControls />}
       </ChessGame.Root>
     </div>
   );
