@@ -1,22 +1,18 @@
 import { ChessGame } from "@react-chess-tools/react-chess-game";
+import { botMove } from "./master";
 const startfen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-
-function isGameOver(engine) {
-  const info = engine.info;
-  console.log(engine.orientation);
-  let orientation = engine.orientation === "w" ? "White" : "Black";
-  if (info.isGameOver) {
-    if (info.hasPlayerWon || info.hasPlayerLost) {
-      return info.hasPlayerWon ? orientation + " Won!" : orientation + " Lost!";
-    } else {
-      return "Draw!";
-    }
-  }
-}
 
 export default function Board({ engine }) {
   console.log(engine);
-  let result = isGameOver(engine);
+  let result;
+  if (engine.info.isGameOver) {
+    result = isGameOver(engine);
+  } else {
+    if (engine.info.turn != engine.orientation) {
+      console.log("bot made a move");
+      botMove(engine);
+    }
+  }
 
   return (
     <>
@@ -32,13 +28,16 @@ export default function Board({ engine }) {
       <div className="flex gap-2">
         <button
           onClick={() => {
-            engine.methods.setPosition(startfen, "b");
+            const orientation = engine.orientation === "w" ? "w" : "b";
+            engine.methods.setPosition(startfen, orientation);
           }}
         >
           Reset
         </button>
         <button
           onClick={() => {
+            const orientation = engine.orientation === "w" ? "w" : "b";
+            engine.methods.setPosition(startfen, orientation);
             engine.methods.flipBoard();
           }}
         >
@@ -47,4 +46,15 @@ export default function Board({ engine }) {
       </div>
     </>
   );
+}
+
+function isGameOver(engine) {
+  const info = engine.info;
+  console.log(engine.orientation);
+  let orientation = engine.orientation === "w" ? "White" : "Black";
+  if (info.hasPlayerWon || info.hasPlayerLost) {
+    return info.hasPlayerWon ? orientation + " Won!" : orientation + " Lost!";
+  } else {
+    return "Draw!";
+  }
 }
