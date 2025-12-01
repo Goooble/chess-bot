@@ -1,17 +1,28 @@
 import { ChessGame } from "@react-chess-tools/react-chess-game";
-import { botMove } from "./master";
+import { botMove, evaluate } from "./master";
+import { useEffect } from "react";
 const startfen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 export default function Board({ engine }) {
-  console.log(engine);
+  useEffect(() => {
+    if (!engine.info.isGameOver) {
+      if (engine.info.turn != engine.orientation) {
+        // console.log("bot made a move");
+        const move = botMove(engine);
+        engine.methods.makeMove({
+          from: move.from,
+          to: move.to,
+          promotion: move.promotion,
+        });
+      }
+    }
+  }, [engine]);
+  const played = engine.info.turn === "w" ? "b" : "w";
+  console.log(played + evaluate(engine.game.board()));
+  // console.log(engine);
   let result;
   if (engine.info.isGameOver) {
     result = isGameOver(engine);
-  } else {
-    if (engine.info.turn != engine.orientation) {
-      console.log("bot made a move");
-      botMove(engine);
-    }
   }
 
   return (
@@ -50,7 +61,6 @@ export default function Board({ engine }) {
 
 function isGameOver(engine) {
   const info = engine.info;
-  console.log(engine.orientation);
   let orientation = engine.orientation === "w" ? "White" : "Black";
   if (info.hasPlayerWon || info.hasPlayerLost) {
     return info.hasPlayerWon ? orientation + " Won!" : orientation + " Lost!";
