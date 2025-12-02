@@ -2,6 +2,7 @@ import { ChessGame } from "@react-chess-tools/react-chess-game";
 import { botMove, evaluate } from "./master";
 import { useEffect } from "react";
 const startfen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+// const startfen = "6k1/pp4p1/2p5/2bp4/8/P5Pb/1P3rrP/2BRRN1K b - - 0 1";
 
 export default function Board({ engine }) {
   useEffect(() => {
@@ -26,7 +27,7 @@ export default function Board({ engine }) {
   if (engine.info.isGameOver) {
     result = isGameOver(engine);
   }
-
+  let evaluation = evaluate(engine.game.board());
   return (
     <>
       <div>{result}</div>
@@ -57,6 +58,7 @@ export default function Board({ engine }) {
           Flip Board
         </button>
       </div>
+      <div>{evaluation}</div>
     </>
   );
 }
