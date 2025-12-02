@@ -22,11 +22,10 @@ export function botMove(engine) {
 }
 
 //search
-let prevMaxScore = 0; //to generate random moves
+
 function search(chess) {
   const moves = chess.moves({ verbose: true });
-  const randomMove = [moves[0]]; //to generate random moves when no difference in scores
-  let bestMove = moves[0];
+  let bestMoves = [];
   let maxScore = -Infinity;
   for (let element of moves) {
     chess.move({
@@ -35,22 +34,19 @@ function search(chess) {
       promotion: element.promotion,
     });
     let score = -1 * negaMax(chess, 2);
-    if (score === maxScore) {
-      randomMove.push(element);
-    }
     if (score > maxScore) {
+      bestMoves.length = 0;
       maxScore = score;
-      bestMove = element;
+    }
+    if (score === maxScore) {
+      bestMoves.push(element);
     }
 
     chess.undo();
   }
   // console.log("Prev Score " + prevMaxScore);
   console.log("Best Score: " + maxScore);
-  if (prevMaxScore === maxScore)
-    return randomMove[Math.floor(Math.random() * randomMove.length)];
-  prevMaxScore = maxScore;
-  return bestMove;
+  return bestMoves[Math.floor(Math.random() * bestMoves.length)];
 }
 
 function negaMax(chess, depth) {
