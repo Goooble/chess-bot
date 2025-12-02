@@ -5,17 +5,16 @@ const startfen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 export default function Board({ engine }) {
   useEffect(() => {
-    async function move() {
-      const move = await botMove(engine);
-      engine.methods.makeMove({
-        from: move.from,
-        to: move.to,
-        promotion: move.promotion,
-      });
-    }
     if (!engine.info.isGameOver) {
       if (engine.info.turn != engine.orientation) {
-        move();
+        setTimeout(async () => {
+          const move = await botMove(engine);
+          engine.methods.makeMove({
+            from: move.from,
+            to: move.to,
+            promotion: move.promotion,
+          });
+        }, 0);
       }
     }
   }, [engine]);

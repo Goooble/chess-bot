@@ -9,14 +9,14 @@ const points = {
   k: 0,
 };
 
-export async function botMove(engine) {
+export function botMove(engine) {
   const chess = engine.game;
   const board = chess.board();
   // let score = evaluate(board) / 100;
   // console.log(score);
   const moves = chess.moves({ verbose: true });
   const searchEngine = Chess(engine.currentFen);
-  const bestMove = await search(searchEngine);
+  const bestMove = search(searchEngine);
   return bestMove;
   // return moves[Math.floor(Math.random() * moves.length)];
 }
@@ -24,7 +24,6 @@ export async function botMove(engine) {
 //search
 function search(chess) {
   const moves = chess.moves({ verbose: true });
-  // console.log(moves);
   let bestMove = moves[0];
   let maxScore = -Infinity;
   moves.forEach((element) => {
@@ -36,7 +35,7 @@ function search(chess) {
     }
     chess.undo();
   });
-  console.log(maxScore);
+  console.log("Best Score: " + bestMove);
   return bestMove;
 }
 
@@ -45,7 +44,7 @@ function negaMax(chess, depth) {
     let turn = 1;
     if (chess.turn === "b") turn = -1;
     let valuation = evaluate(chess.board());
-    // console.log(valuation);
+
     return valuation * turn;
   }
   const moves = chess.moves({ verbose: true });
