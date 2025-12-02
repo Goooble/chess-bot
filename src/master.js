@@ -1,3 +1,5 @@
+import { Chess } from "chess.js";
+
 const points = {
   p: 100,
   n: 300,
@@ -7,13 +9,56 @@ const points = {
   k: 0,
 };
 
-export function botMove(engine) {
+export async function botMove(engine) {
   const chess = engine.game;
   const board = chess.board();
   // let score = evaluate(board) / 100;
   // console.log(score);
   const moves = chess.moves({ verbose: true });
-  return moves[Math.floor(Math.random() * moves.length)];
+  const searchEngine = Chess(engine.currentFen);
+  const bestMove = await search(searchEngine);
+  return bestMove;
+  // return moves[Math.floor(Math.random() * moves.length)];
+}
+
+//search
+function search(chess) {
+  const moves = chess.moves({ verbose: true });
+  // console.log(moves);
+  let bestMove = moves[0];
+  let maxScore = -Infinity;
+  moves.forEach((element) => {
+    chess.move(element.san);
+    let score = -1 * negaMax(chess, 2);
+    if (score > maxScore) {
+      maxScore = score;
+      bestMove = element;
+    }
+    chess.undo();
+  });
+  console.log(maxScore);
+  return bestMove;
+}
+
+function negaMax(chess, depth) {
+  if (depth === 0) {
+    let turn = 1;
+    if (chess.turn === "b") turn = -1;
+    let valuation = evaluate(chess.board());
+    // console.log(valuation);
+    return valuation * turn;
+  }
+  const moves = chess.moves({ verbose: true });
+  let maxScore = -Infinity;
+  moves.forEach((element) => {
+    chess.move(element.san);
+    let score = -1 * negaMax(chess, depth - 1);
+    if (score > maxScore) {
+      maxScore = score;
+    }
+    chess.undo();
+  });
+  return maxScore;
 }
 
 //Evaluation:
