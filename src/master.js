@@ -22,10 +22,8 @@ export function botMove(engine) {
 }
 
 //search
+
 function search(chess) {
-  console.log(
-    chess.validate_fen("6k1/pp4p1/2p5/2bp4/8/P5Pb/1P3rrP/2BRRN1K b - - 0 1")
-  );
   const moves = chess.moves({ verbose: true });
   let bestMove = moves[0];
   let maxScore = -Infinity;
@@ -48,12 +46,10 @@ function search(chess) {
 
 function negaMax(chess, depth) {
   if (depth === 0) {
-    let turn = 1;
-    console.log(chess.turn());
-    if (chess.turn() === "b") turn = -1;
+    let turn = chess.turn() === "w" ? 1 : -1;
     let valuation = evaluate(chess.board());
 
-    return valuation;
+    return valuation * turn;
   }
   const moves = chess.moves({ verbose: true });
   let maxScore = -Infinity;
