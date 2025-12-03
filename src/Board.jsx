@@ -141,7 +141,7 @@ export default function Board({ engine }) {
         <div>
           <button
             onClick={() => {
-              setIsStock(true);
+              setIsStock(!isStock);
               setStockEval(0);
             }}
           >
