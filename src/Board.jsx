@@ -36,7 +36,8 @@ export default function Board({ engine }) {
   console.log(engine);
 
   let result; //who won
-  //calculating total bot moves
+
+  //calculating total bot moves - this was builtin with chess.js T_T
   let totalBotMoves;
   let totalMoves = engine.info.moveNumber; //in the game
   if (engine.orientation === "w") {

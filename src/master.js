@@ -53,6 +53,9 @@ function search(chess) {
 }
 
 function negaMax(chess, depth) {
+  if (!chess.in_checkmate() && chess.game_over()) {
+    return 0;
+  }
   if (depth === 0) {
     nodes++;
     let turn = chess.turn() === "w" ? 1 : -1;
