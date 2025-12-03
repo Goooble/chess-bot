@@ -5,16 +5,10 @@ import { useState } from "react";
 const startfen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 // const startfen = "6k1/pp4p1/2p5/2bp4/8/P5Pb/1P3rrP/2BRRN1K b - - 0 1";
 
-function resetStats(
-  setEvaluatedPositions,
-  setTotalPositions,
-  setTimeTaken,
-  setTotalTimeTaken
-) {
-  setEvaluatedPositions(0);
-  setTotalPositions(0);
-  setTimeTaken(0);
-  setTotalTimeTaken(0);
+function resetStats(stats = []) {
+  stats.forEach((set) => {
+    set(0);
+  });
 }
 
 export default function Board({ engine }) {
@@ -22,7 +16,32 @@ export default function Board({ engine }) {
   const [totalPositions, setTotalPositions] = useState(0);
   const [timeTaken, setTimeTaken] = useState(0);
   const [totalTimeTaken, setTotalTimeTaken] = useState(0);
+  const [isStock, setIsStock] = useState(false);
+  const [stockEval, setStockEval] = useState(0);
+  const [depth, setDepth] = useState(1); //stockfish
+
   useEffect(() => {
+    //stockfish
+    async function getMove() {
+      let res = await fetch("https://chess-api.com/v1", {
+        method: "POST",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify({ fen: engine.game.fen(), depth: depth }),
+      });
+      res = await res.json();
+      console.log(res);
+      engine.methods.makeMove(res.san);
+      setStockEval(res.eval);
+    }
+    //
+    if (isStock) {
+      if (!engine.info.isGameOver) {
+        if (engine.info.turn == engine.orientation) {
+          getMove();
+        }
+      }
+    }
+
     //botmove
     if (!engine.info.isGameOver) {
       if (engine.info.turn != engine.orientation) {
@@ -40,7 +59,7 @@ export default function Board({ engine }) {
         }, 0);
       }
     }
-  }, [engine]); //its crying but meh should be fine
+  }, [engine, isStock]); //its crying but meh should be fine
 
   //displays score of the position
   // const played = engine.info.turn === "w" ? "b" : "w";
@@ -63,10 +82,21 @@ export default function Board({ engine }) {
     result = isGameOver(engine);
   }
   //getting current board evaluation
-  let evaluation = evaluate(engine.game.board());
+  let evaluation = evaluate(engine.game.board()) / 100;
+
+  //stats to reset
+  const resetStates = [
+    setEvaluatedPositions,
+    setTotalPositions,
+    setTimeTaken,
+    setTotalTimeTaken,
+    setIsStock,
+    setStockEval,
+  ];
   return (
     <>
       <div>{result}</div>
+      <div>move: {engine.info.moveNumber}</div>
       <div className="absolute top-5 left-5">
         <div>Positions evaluated: {evaluatedPositions} </div>
         <div>
@@ -78,6 +108,7 @@ export default function Board({ engine }) {
           Avg Time Taken: {Math.floor(totalTimeTaken / totalBotMoves)}ms{" "}
         </div>
         <div>Current Eval: {evaluation}</div>
+        <div>Stockfish Eval: {stockEval}</div>
       </div>
       <div className="w-4/5 lg:w-2/5">
         <ChessGame.Board
@@ -92,12 +123,7 @@ export default function Board({ engine }) {
           onClick={() => {
             const orientation = engine.orientation === "w" ? "w" : "b";
             engine.methods.setPosition(startfen, orientation);
-            resetStats(
-              setEvaluatedPositions,
-              setTotalPositions,
-              setTimeTaken,
-              setTotalTimeTaken
-            );
+            resetStats(resetStates);
           }}
         >
           Reset
@@ -107,16 +133,22 @@ export default function Board({ engine }) {
             const orientation = engine.orientation === "w" ? "w" : "b";
             engine.methods.setPosition(startfen, orientation);
             engine.methods.flipBoard();
-            resetStats(
-              setEvaluatedPositions,
-              setTotalPositions,
-              setTimeTaken,
-              setTotalTimeTaken
-            );
+            resetStats(resetStates);
           }}
         >
           Flip Board
         </button>
+        <div>
+          <button
+            onClick={() => {
+              setIsStock(true);
+              setStockEval(0);
+            }}
+          >
+            Stockfish vs Chute
+          </button>
+          {/* Depth: {depth} */}
+        </div>
       </div>
     </>
   );

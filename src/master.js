@@ -15,7 +15,7 @@ export function botMove(engine) {
   // let score = evaluate(board) / 100;
   // console.log(score);
   // const moves = chess.moves({ verbose: true });
-  const searchEngine = new Chess(engine.currentFen);
+  const searchEngine = new Chess(engine.game.fen()); //messes up three fold repitition lol i think? verify
   const begin = performance.now();
   const bestMove = search(searchEngine);
   const end = performance.now();
