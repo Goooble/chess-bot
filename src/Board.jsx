@@ -18,7 +18,7 @@ export default function Board({ engine }) {
   const [totalTimeTaken, setTotalTimeTaken] = useState(0);
   const [isStock, setIsStock] = useState(false);
   const [stockEval, setStockEval] = useState(0);
-  const [depth, setDepth] = useState(1); //stockfish
+  // const [depth, setDepth] = useState(1); //stockfish depth
 
   useEffect(() => {
     //stockfish
@@ -26,7 +26,7 @@ export default function Board({ engine }) {
       let res = await fetch("https://chess-api.com/v1", {
         method: "POST",
         headers: { "Content-type": "application/json" },
-        body: JSON.stringify({ fen: engine.game.fen(), depth: depth }),
+        body: JSON.stringify({ fen: engine.game.fen(), depth: 12 }),
       });
       res = await res.json();
       console.log(res);
@@ -145,7 +145,7 @@ export default function Board({ engine }) {
               setStockEval(0);
             }}
           >
-            Stockfish vs Chute
+            Stockfish vs Shute
           </button>
           {/* Depth: {depth} */}
         </div>

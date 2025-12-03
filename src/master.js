@@ -28,6 +28,10 @@ let nodes = 0;
 function search(chess) {
   nodes = 0;
   const moves = chess.moves({ verbose: true });
+  moves.sort((a, b) => {
+    if (a.flags.includes("c") && !b.flags.includes("c")) return -1;
+    if (!a.flags.includes("c") && b.flags.includes("c")) return 1;
+  });
   let bestMoves = [];
   let maxScore = -Infinity;
   for (let element of moves) {
@@ -36,7 +40,7 @@ function search(chess) {
       to: element.to,
       promotion: element.promotion,
     });
-    let score = -1 * negaMax(chess, 2);
+    let score = -1 * negaMax(chess, 2, -Infinity, Infinity);
     if (score > maxScore) {
       bestMoves.length = 0;
       maxScore = score;
@@ -52,11 +56,12 @@ function search(chess) {
   return bestMoves[Math.floor(Math.random() * bestMoves.length)];
 }
 
-function negaMax(chess, depth) {
+function negaMax(chess, depth, alpha, beta) {
   //for checkmate, it just returns default maxscore -infinity as no new moves are evaluated
   if (!chess.in_checkmate() && chess.game_over()) {
     return 0;
   }
+  if (chess.in_checkmate()) return -Infinity;
   if (depth === 0) {
     nodes++;
     let turn = chess.turn() === "w" ? 1 : -1;
@@ -65,6 +70,10 @@ function negaMax(chess, depth) {
     return valuation * turn;
   }
   const moves = chess.moves({ verbose: true });
+  moves.sort((a, b) => {
+    if (a.flags.includes("c") && !b.flags.includes("c")) return -1;
+    if (!a.flags.includes("c") && b.flags.includes("c")) return 1;
+  });
   let maxScore = -Infinity;
   for (let element of moves) {
     chess.move({
@@ -72,13 +81,17 @@ function negaMax(chess, depth) {
       to: element.to,
       promotion: element.promotion,
     });
-    let score = -1 * negaMax(chess, depth - 1);
+    let score = -1 * negaMax(chess, depth - 1, -1 * beta, -1 * alpha);
+    chess.undo();
+    if (score > alpha) {
+      alpha = score;
+    }
+    if (alpha > beta) break;
     if (score > maxScore) {
       maxScore = score;
     }
-    chess.undo();
   }
-  return maxScore;
+  return alpha;
 }
 
 //Evaluation:
