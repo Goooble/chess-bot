@@ -5,6 +5,18 @@ import { useState } from "react";
 const startfen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 // const startfen = "6k1/pp4p1/2p5/2bp4/8/P5Pb/1P3rrP/2BRRN1K b - - 0 1";
 
+function resetStats(
+  setEvaluatedPositions,
+  setTotalPositions,
+  setTimeTaken,
+  setTotalTimeTaken
+) {
+  setEvaluatedPositions(0);
+  setTotalPositions(0);
+  setTimeTaken(0);
+  setTotalTimeTaken(0);
+}
+
 export default function Board({ engine }) {
   const [evaluatedPositions, setEvaluatedPositions] = useState(0);
   const [totalPositions, setTotalPositions] = useState(0);
@@ -80,6 +92,12 @@ export default function Board({ engine }) {
           onClick={() => {
             const orientation = engine.orientation === "w" ? "w" : "b";
             engine.methods.setPosition(startfen, orientation);
+            resetStats(
+              setEvaluatedPositions,
+              setTotalPositions,
+              setTimeTaken,
+              setTotalTimeTaken
+            );
           }}
         >
           Reset
@@ -89,6 +107,12 @@ export default function Board({ engine }) {
             const orientation = engine.orientation === "w" ? "w" : "b";
             engine.methods.setPosition(startfen, orientation);
             engine.methods.flipBoard();
+            resetStats(
+              setEvaluatedPositions,
+              setTotalPositions,
+              setTimeTaken,
+              setTotalTimeTaken
+            );
           }}
         >
           Flip Board

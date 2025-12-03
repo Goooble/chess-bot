@@ -53,6 +53,7 @@ function search(chess) {
 }
 
 function negaMax(chess, depth) {
+  //for checkmate, it just returns default maxscore -infinity as no new moves are evaluated
   if (!chess.in_checkmate() && chess.game_over()) {
     return 0;
   }
