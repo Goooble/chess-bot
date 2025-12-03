@@ -17,13 +17,14 @@ export function botMove(engine) {
   // const moves = chess.moves({ verbose: true });
   const searchEngine = new Chess(engine.currentFen);
   const bestMove = search(searchEngine);
-  return bestMove;
+  return { bestMove, nodes };
   // return moves[Math.floor(Math.random() * moves.length)];
 }
 
 //search
-
+let nodes = 0;
 function search(chess) {
+  nodes = 0;
   const moves = chess.moves({ verbose: true });
   let bestMoves = [];
   let maxScore = -Infinity;
@@ -51,6 +52,7 @@ function search(chess) {
 
 function negaMax(chess, depth) {
   if (depth === 0) {
+    nodes++;
     let turn = chess.turn() === "w" ? 1 : -1;
     let valuation = evaluate(chess.board());
 

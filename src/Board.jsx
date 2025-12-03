@@ -1,36 +1,61 @@
 import { ChessGame } from "@react-chess-tools/react-chess-game";
 import { botMove, evaluate } from "./master";
 import { useEffect } from "react";
+import { useState } from "react";
 const startfen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 // const startfen = "6k1/pp4p1/2p5/2bp4/8/P5Pb/1P3rrP/2BRRN1K b - - 0 1";
 
 export default function Board({ engine }) {
+  const [evaluatedPositions, setEvaluatedPositions] = useState(0);
+  const [totalPositions, setTotalPositions] = useState(0);
   useEffect(() => {
+    //botmove
     if (!engine.info.isGameOver) {
       if (engine.info.turn != engine.orientation) {
-        setTimeout(async () => {
-          const move = await botMove(engine);
+        setTimeout(() => {
+          const { bestMove: move, nodes } = botMove(engine);
           engine.methods.makeMove({
             from: move.from,
             to: move.to,
             promotion: move.promotion,
           });
+          setEvaluatedPositions(nodes);
+          setTotalPositions(totalPositions + nodes);
         }, 0);
       }
     }
-  }, [engine]);
+  }, [engine]); //its crying but meh should be fine
+
   //displays score of the position
   // const played = engine.info.turn === "w" ? "b" : "w";
   // console.log(played + evaluate(engine.game.board()));
-  // console.log(engine);
-  let result;
+  console.log(engine);
+
+  let result; //who won
+  //calculating total bot moves
+  let totalBotMoves;
+  let totalMoves = engine.info.moveNumber; //in the game
+  if (engine.orientation === "w") {
+    totalBotMoves = Math.floor(totalMoves / 2);
+  } else {
+    totalBotMoves = Math.ceil(totalMoves / 2);
+  }
+
+  //checking for game over
   if (engine.info.isGameOver) {
     result = isGameOver(engine);
   }
+  //getting current board evaluation
   let evaluation = evaluate(engine.game.board());
   return (
     <>
       <div>{result}</div>
+      <div>Positions evaluated: {evaluatedPositions} </div>
+      <div>
+        Average positions evaluated per move:
+        {Math.floor(totalPositions / totalBotMoves)}
+      </div>
+      <div>Current Eval: {evaluation}</div>
       <div className="w-4/5 lg:w-2/5">
         <ChessGame.Board
           options={{
@@ -58,7 +83,6 @@ export default function Board({ engine }) {
           Flip Board
         </button>
       </div>
-      <div>{evaluation}</div>
     </>
   );
 }
