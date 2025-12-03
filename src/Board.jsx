@@ -8,17 +8,21 @@ const startfen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 export default function Board({ engine }) {
   const [evaluatedPositions, setEvaluatedPositions] = useState(0);
   const [totalPositions, setTotalPositions] = useState(0);
+  const [timeTaken, setTimeTaken] = useState(0);
+  const [totalTimeTaken, setTotalTimeTaken] = useState(0);
   useEffect(() => {
     //botmove
     if (!engine.info.isGameOver) {
       if (engine.info.turn != engine.orientation) {
         setTimeout(() => {
-          const { bestMove: move, nodes } = botMove(engine);
+          const { bestMove: move, nodes, time } = botMove(engine);
           engine.methods.makeMove({
             from: move.from,
             to: move.to,
             promotion: move.promotion,
           });
+          setTimeTaken(time);
+          setTotalTimeTaken(timeTaken + time);
           setEvaluatedPositions(nodes);
           setTotalPositions(totalPositions + nodes);
         }, 0);
@@ -55,6 +59,8 @@ export default function Board({ engine }) {
         Average positions evaluated per move:
         {Math.floor(totalPositions / totalBotMoves)}
       </div>
+      <div>Time Taken: {Math.floor(timeTaken) / 1000}sgi </div>
+      <div>Avg Time Taken: {Math.floor(totalTimeTaken / totalBotMoves)}ms </div>
       <div>Current Eval: {evaluation}</div>
       <div className="w-4/5 lg:w-2/5">
         <ChessGame.Board

@@ -16,8 +16,10 @@ export function botMove(engine) {
   // console.log(score);
   // const moves = chess.moves({ verbose: true });
   const searchEngine = new Chess(engine.currentFen);
+  const begin = performance.now();
   const bestMove = search(searchEngine);
-  return { bestMove, nodes };
+  const end = performance.now();
+  return { bestMove, nodes, time: end - begin };
   // return moves[Math.floor(Math.random() * moves.length)];
 }
 
