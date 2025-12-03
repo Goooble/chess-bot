@@ -54,14 +54,18 @@ export default function Board({ engine }) {
   return (
     <>
       <div>{result}</div>
-      <div>Positions evaluated: {evaluatedPositions} </div>
-      <div>
-        Average positions evaluated per move:
-        {Math.floor(totalPositions / totalBotMoves)}
+      <div className="absolute top-5 left-5">
+        <div>Positions evaluated: {evaluatedPositions} </div>
+        <div>
+          Average positions evaluated per move:
+          {Math.floor(totalPositions / totalBotMoves)}
+        </div>
+        <div>Time Taken: {Math.floor(timeTaken) / 1000}s </div>
+        <div>
+          Avg Time Taken: {Math.floor(totalTimeTaken / totalBotMoves)}ms{" "}
+        </div>
+        <div>Current Eval: {evaluation}</div>
       </div>
-      <div>Time Taken: {Math.floor(timeTaken) / 1000}sgi </div>
-      <div>Avg Time Taken: {Math.floor(totalTimeTaken / totalBotMoves)}ms </div>
-      <div>Current Eval: {evaluation}</div>
       <div className="w-4/5 lg:w-2/5">
         <ChessGame.Board
           options={{
