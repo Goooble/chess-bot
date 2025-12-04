@@ -141,7 +141,7 @@ function isEndGame(board) {
       }
     }
   }
-  if (sum <= 12) return true;
+  if (sum <= 8) return true;
   else return false;
 }
 
