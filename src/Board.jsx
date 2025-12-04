@@ -29,7 +29,7 @@ export default function Board({ engine }) {
         body: JSON.stringify({ fen: engine.game.fen(), depth: 12 }),
       });
       res = await res.json();
-      console.log(res);
+      // console.log(res);
       engine.methods.makeMove(res.san);
       setStockEval(res.eval);
     }

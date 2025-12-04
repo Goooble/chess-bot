@@ -28,7 +28,7 @@ export function botMove(engine) {
 let nodes = 0;
 let depth = 2;
 function search(chess) {
-  console.log(depth);
+  // console.log(depth);
   if (depth < 3) {
     if (isEndGame(chess.board())) {
       depth = 3;
@@ -105,19 +105,23 @@ export function evaluate(board) {
 }
 
 function pstEval(piece, color, i, j, isEnd) {
+  // choose the correct PST table
+  let table;
+
   if (piece === "k") {
-    if (isEnd) {
-      if (color === "w") return pst.KING_EG[i][j];
-      else return pst.KING_EG[7 - i][j];
-    } else {
-      if (color === "w") return pst.KING_MG[i][j];
-      else return pst.KING_MG[7 - i][j];
-    }
+    table = isEnd ? pst.KING_EG : pst.KING_MG;
+  } else if (piece === "p") {
+    table = isEnd ? pst.P_EG : pst.P_MG;
   } else {
-    // console.log(j);
-    // console.log(pst[piece][i][j]);
-    if (color === "w") return pst[piece][i][j];
-    else return pst[piece][7 - i][j];
+    // other pieces use a single PST
+    table = pst[piece];
+  }
+
+  // apply orientation
+  if (color === "w") {
+    return table[i][j];
+  } else {
+    return table[7 - i][j];
   }
 }
 
