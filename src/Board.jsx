@@ -64,7 +64,7 @@ export default function Board({ engine }) {
   //displays score of the position
   // const played = engine.info.turn === "w" ? "b" : "w";
   // console.log(played + evaluate(engine.game.board()));
-  console.log(engine);
+  // console.log(engine);
 
   let result; //who won
 

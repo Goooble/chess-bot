@@ -1,4 +1,5 @@
 import { Chess } from "chess.js";
+import pst from "./PST";
 
 const points = {
   p: 100,
@@ -25,13 +26,18 @@ export function botMove(engine) {
 
 //search
 let nodes = 0;
+let depth = 2;
 function search(chess) {
+  console.log(depth);
+  if (depth < 3) {
+    if (isEndGame(chess.board())) {
+      depth = 3;
+    }
+  }
+
   nodes = 0;
   const moves = chess.moves({ verbose: true });
-  moves.sort((a, b) => {
-    if (a.flags.includes("c") && !b.flags.includes("c")) return -1;
-    if (!a.flags.includes("c") && b.flags.includes("c")) return 1;
-  });
+  moveOrdering(moves);
   let bestMoves = [];
   let maxScore = -Infinity;
   for (let element of moves) {
@@ -40,7 +46,7 @@ function search(chess) {
       to: element.to,
       promotion: element.promotion,
     });
-    let score = -1 * negaMax(chess, 2, -Infinity, Infinity);
+    let score = -1 * negaMax(chess, depth, -Infinity, Infinity);
     if (score > maxScore) {
       bestMoves.length = 0;
       maxScore = score;
@@ -69,11 +75,10 @@ function negaMax(chess, depth, alpha, beta) {
 
     return valuation * turn;
   }
+
+  //search
   const moves = chess.moves({ verbose: true });
-  moves.sort((a, b) => {
-    if (a.flags.includes("c") && !b.flags.includes("c")) return -1;
-    if (!a.flags.includes("c") && b.flags.includes("c")) return 1;
-  });
+  moveOrdering(moves);
   let maxScore = -Infinity;
   for (let element of moves) {
     chess.move({
@@ -99,7 +104,50 @@ export function evaluate(board) {
   return material(board);
 }
 
+function pstEval(piece, color, i, j, isEnd) {
+  if (piece === "k") {
+    if (isEnd) {
+      if (color === "w") return pst.KING_EG[i][j];
+      else return pst.KING_EG[7 - i][j];
+    } else {
+      if (color === "w") return pst.KING_MG[i][j];
+      else return pst.KING_MG[7 - i][j];
+    }
+  } else {
+    // console.log(j);
+    // console.log(pst[piece][i][j]);
+    if (color === "w") return pst[piece][i][j];
+    else return pst[piece][7 - i][j];
+  }
+}
+
+function isEndGame(board) {
+  const weights = {
+    q: 4,
+    r: 2,
+    b: 1,
+    n: 1,
+  };
+  let sum = 0;
+  for (let i = 0; i < 8; i++) {
+    for (let j = 0; j < 8; j++) {
+      const square = board[i][j];
+
+      if (!square) {
+        continue;
+      }
+      if (square.type !== "k" && square.type !== "p") {
+        sum += weights[square.type];
+      }
+    }
+  }
+  if (sum <= 12) return true;
+  else return false;
+}
+
 function material(board) {
+  const isEnd = isEndGame(board);
+  // console.log(isEnd);
   let black = 0;
   let white = 0;
   for (let i = 0; i < 8; i++) {
@@ -110,11 +158,23 @@ function material(board) {
         continue;
       }
       if (square.color === "w") {
-        white += points[square.type];
+        // console.log(j);
+        white += points[square.type] + pstEval(square.type, "w", i, j, isEnd);
       } else {
-        black += points[square.type];
+        black += points[square.type] + pstEval(square.type, "b", i, j, isEnd);
       }
     }
   }
   return white - black;
+}
+
+function moveOrdering(moves) {
+  function mvvlva(move) {
+    if (!move.flags.includes("c")) return 0;
+    let victim = move.captured;
+    let attacker = move.piece;
+
+    return points[victim] * 10 - points[attacker];
+  }
+  moves.sort((a, b) => mvvlva(b) - mvvlva(a));
 }
