@@ -1,16 +1,35 @@
-# React + Vite
+# Shute
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A lightweight chess bot built in JavaScript with a minimal evaluation and search implementation. The UI is built with React.
 
-Currently, two official plugins are available:
+Try it: https://chess-bot-rho.vercel.app/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Installation
 
-## React Compiler
+```bash
+git clone git@github.com:Goooble/chess-bot.git
+cd chess-bot
+npm install
+npm run dev
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Libraries
 
-## Expanding the ESLint configuration
+- **@react-chess-tools/react-chess-game** — used for game logic and board rendering
+  (https://www.npmjs.com/package/@react-chess-tools/react-chess-game)
+- **chess.js** — used to generate legal moves and validate game state
+  (https://www.npmjs.com/package/chess.js)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Search
+
+- Negamax: a simplified minimax-based search
+- Alpha–beta pruning: provides ~30% improvement in search time compared to no pruning
+- Move ordering: captures first (MVV-LVA — Most Valuable Victim / Least Valuable Aggressor)
+- Search depth: 3 (default)
+  - Endgame: increased depth to 4
+- Opening database: Lichess opening explorer (https://lichess.org/api#tag/opening-explorer/get/masters)
+
+## Evaluation
+
+- Material count
+- Piece-square tables (PSQT)
