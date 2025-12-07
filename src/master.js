@@ -1,5 +1,5 @@
 import { Chess } from "chess.js";
-import pst from "./PST";
+import pst from "./PSQT";
 
 const points = {
   p: 100,
@@ -26,15 +26,21 @@ export async function botMove(engine) {
   const searchEngine = new Chess(fen); //messes up three fold repitition lol i think? verify
   let result;
   if (isOpening) {
-    result = await fetch(`https://explorer.lichess.ovh/masters?fen=${fen}`);
-    if (result.ok) {
-      result = await result.json();
-      if (result.moves.length === 0) {
-        isOpening = false;
+    try {
+      result = await fetch(`https://explorer.lichess.ovh/masters?fen=${fen}`);
+      if (!result.ok) {
         bestMove = search(searchEngine);
       } else {
-        bestMove = sanToVerbose(searchEngine, result.moves[0].san);
+        result = await result.json();
+        if (result.moves.length === 0) {
+          isOpening = false;
+          bestMove = search(searchEngine);
+        } else {
+          bestMove = sanToVerbose(searchEngine, result.moves[0].san);
+        }
       }
+    } catch (e) {
+      bestMove = search(searchEngine);
     }
   } else {
     bestMove = search(searchEngine);
