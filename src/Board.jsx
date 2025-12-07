@@ -45,8 +45,8 @@ export default function Board({ engine }) {
     //botmove
     if (!engine.info.isGameOver) {
       if (engine.info.turn != engine.orientation) {
-        setTimeout(() => {
-          const { bestMove: move, nodes, time } = botMove(engine);
+        setTimeout(async () => {
+          const { bestMove: move, nodes, time } = await botMove(engine);
           engine.methods.makeMove({
             from: move.from,
             to: move.to,

@@ -10,15 +10,36 @@ const points = {
   k: 0,
 };
 
-export function botMove(engine) {
-  // const chess = engine.game;
-  // const board = chess.board();
-  // let score = evaluate(board) / 100;
-  // console.log(score);
-  // const moves = chess.moves({ verbose: true });
-  const searchEngine = new Chess(engine.game.fen()); //messes up three fold repitition lol i think? verify
+function sanToVerbose(engine, san) {
+  const moves = engine.moves({ verbose: true });
+  let verbose = moves.find((move) => {
+    return move.san === san;
+  });
+  return verbose;
+}
+
+let isOpening = true;
+export async function botMove(engine) {
   const begin = performance.now();
-  const bestMove = search(searchEngine);
+  let bestMove;
+  const fen = engine.game.fen();
+  const searchEngine = new Chess(fen); //messes up three fold repitition lol i think? verify
+  let result;
+  if (isOpening) {
+    result = await fetch(`https://explorer.lichess.ovh/masters?fen=${fen}`);
+    if (result.ok) {
+      result = await result.json();
+      if (result.moves.length === 0) {
+        isOpening = false;
+        bestMove = search(searchEngine);
+      } else {
+        bestMove = sanToVerbose(searchEngine, result.moves[0].san);
+      }
+    }
+  } else {
+    bestMove = search(searchEngine);
+  }
+
   const end = performance.now();
   return { bestMove, nodes, time: end - begin };
   // return moves[Math.floor(Math.random() * moves.length)];
@@ -28,7 +49,6 @@ export function botMove(engine) {
 let nodes = 0;
 let depth = 2;
 function search(chess) {
-  // console.log(depth);
   if (depth < 3) {
     if (isEndGame(chess.board())) {
       depth = 3;
@@ -57,7 +77,6 @@ function search(chess) {
 
     chess.undo();
   }
-  // console.log("Prev Score " + prevMaxScore);
   console.log("Best Score: " + maxScore);
   return bestMoves[Math.floor(Math.random() * bestMoves.length)];
 }
@@ -151,7 +170,7 @@ function isEndGame(board) {
 
 function material(board) {
   const isEnd = isEndGame(board);
-  // console.log(isEnd);
+
   let black = 0;
   let white = 0;
   for (let i = 0; i < 8; i++) {
@@ -162,7 +181,6 @@ function material(board) {
         continue;
       }
       if (square.color === "w") {
-        // console.log(j);
         white += points[square.type] + pstEval(square.type, "w", i, j, isEnd);
       } else {
         black += points[square.type] + pstEval(square.type, "b", i, j, isEnd);
